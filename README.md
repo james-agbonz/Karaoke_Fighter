@@ -1,5 +1,7 @@
 # 🎤 KARAOKE COMBAT: Multiplayer Pitch Fighter
 
+For the complete end-to-end architecture, runtime flow, protocol, file formats, and development guide, see [PROJECT_DOCUMENTATION.md](PROJECT_DOCUMENTATION.md).
+
 A local multiplayer karaoke fighting game where two players battle using their singing voices. Match the pitch of scrolling MIDI notes to deal damage to your opponent!
 
 ## 🎮 Game Overview

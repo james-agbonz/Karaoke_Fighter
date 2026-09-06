@@ -106,6 +106,8 @@ const HostPage: React.FC = () => {
     });
 
     socketClient.on('pitch_update', (data: { slot: 1 | 2; pitch: number }) => {
+      console.log(data);
+      console.log(p1PitchRef.current, p2PitchRef.current);
       if (data.slot === 1) {
         setP1Pitch(data.pitch);
         p1PitchRef.current = data.pitch;
