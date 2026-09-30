@@ -1,0 +1,227 @@
+{
+  "gen_bohemian-test_1790727500509": {
+    "id": "gen_bohemian-test_1790727500509",
+    "status": "running",
+    "query": "Bohemian Rhapsody Queen",
+    "songId": "bohemian-test",
+    "progress": "Running auto song pack generator...",
+    "createdAt": 1790727500509,
+    "startedAt": 1790727500522
+  },
+  "gen_ditd771wume_1790727585022": {
+    "id": "gen_ditd771wume_1790727585022",
+    "status": "failed",
+    "query": "Apt rose bruno mars instrumental",
+    "songId": "ditd771wume",
+    "progress": "Failed",
+    "createdAt": 1790727585022,
+    "startedAt": 1790727585027,
+    "error": "Error: \n❌ Failed: Error: Exit code 1\n    at ChildProcess.<anonymous> (/app/scripts/auto-song-pack.ts:51:16)\n    at ChildProcess.emit (node:events:524:28)\n    at maybeClose (node:internal/child_process:1104:16)\n    at ChildProcess._handle.onexit (node:internal/child_process:304:5)\n",
+    "completedAt": 1790727589547
+  },
+  "gen_apt-test-2_1790728491061": {
+    "id": "gen_apt-test-2_1790728491061",
+    "status": "running",
+    "query": "APT ROSÉ Bruno Mars",
+    "songId": "apt-test-2",
+    "progress": "Running auto song pack generator...",
+    "createdAt": 1790728491061,
+    "startedAt": 1790728491067
+  },
+  "gen_apt-basic_1790728973392": {
+    "id": "gen_apt-basic_1790728973392",
+    "status": "running",
+    "query": "APT ROSÉ Bruno Mars",
+    "songId": "apt-basic",
+    "progress": "Running auto song pack generator...",
+    "createdAt": 1790728973392,
+    "startedAt": 1790728973407
+  },
+  "gen_apt-api_1790729827963": {
+    "id": "gen_apt-api_1790729827963",
+    "status": "running",
+    "query": "APT ROSÉ Bruno Mars",
+    "songId": "apt-api",
+    "progress": "Running auto song pack generator...",
+    "createdAt": 1790729827963,
+    "startedAt": 1790729827968
+  },
+  "gen_apt-restart_1790729995988": {
+    "id": "gen_apt-restart_1790729995988",
+    "status": "failed",
+    "query": "APT ROSÉ Bruno Mars",
+    "songId": "apt-restart",
+    "progress": "Failed",
+    "createdAt": 1790729995988,
+    "startedAt": 1790729995994,
+    "error": "Error: Invalid JSON output: \n🎵 Auto-generating song pack: \"APT ROSÉ Bruno Mars\" → apt-restart\n📁 Output: /app/songs/apt-restart\n🗂️  Temp: /app/.temp/apt-restart\n\n🔍 Searching YTMusic...\n  $ python3 \"/app/scripts/auto-song-pack.py\" search \"APT ROSÉ Bruno Mars\" 1\n  ✓ Found: APT. by ROSÉ (DiTd771WumE)\n📝 Fetching lyrics...\n  $ python3 \"/app/scripts/auto-song-pack.py\" details \"DiTd771WumE\"\n  ✓ Got lyrics: no\n⬇️  Downloading & processing (this takes a few minutes)...\n  $ python3 \"/app/scripts/auto-song-pack.py\" generate \"DiTd771WumE\" \"apt-restart\" \"APT.\"\n\n✅ Created /app/songs/apt-restart/song.json\n   Check the song pack in the Host UI → Song Packs dropdown\n",
+    "completedAt": 1790730003891
+  },
+  "gen_apt-fixed_1790730245693": {
+    "id": "gen_apt-fixed_1790730245693",
+    "status": "running",
+    "query": "APT ROSÉ Bruno Mars",
+    "songId": "apt-fixed",
+    "progress": "Running auto song pack generator...",
+    "createdAt": 1790730245693,
+    "startedAt": 1790730245701
+  },
+  "gen_apt-stdin_1790730597228": {
+    "id": "gen_apt-stdin_1790730597228",
+    "status": "running",
+    "query": "APT ROSÉ Bruno Mars",
+    "songId": "apt-stdin",
+    "progress": "Running auto song pack generator...",
+    "createdAt": 1790730597228,
+    "startedAt": 1790730597235
+  },
+  "gen_apt-direct_1790730870229": {
+    "id": "gen_apt-direct_1790730870229",
+    "status": "failed",
+    "query": "APT ROSÉ Bruno Mars",
+    "songId": "apt-direct",
+    "progress": "Failed",
+    "createdAt": 1790730870229,
+    "startedAt": 1790730870236,
+    "error": "Error: Invalid JSON output: ⚠️  Full generation requires demucs and basic-pitch (not installed in production)\n   Run full generation via: docker compose --profile tools run --rm auto-song \"query\" --id song-id\n   Creating basic song.json with video info and lyrics only...\n\n🎵 Creating basic song pack: APT. → apt-direct\n📁 Output: /app/songs/apt-direct\n\n  ⚠ No synced lyrics available\n\n✅ Created basic /app/songs/apt-direct/song.json\n   Title: APT.\n   Duration: 180s\n   Lyrics: 0 lines\n   Notes: 0 (run full generation for MIDI extraction)\n\n💡 For full generation with MIDI, run:\n   docker compose --profile tools run --rm auto-song \"APT.\" --id apt-direct\n{\"success\": true, \"songId\": \"apt-direct\", \"title\": \"APT.\", \"videoId\": \"DiTd771WumE\", \"basic\": true}\n",
+    "completedAt": 1790730875896
+  },
+  "gen_apt-final_1790731079763": {
+    "id": "gen_apt-final_1790731079763",
+    "status": "failed",
+    "query": "APT ROSÉ Bruno Mars",
+    "songId": "apt-final",
+    "progress": "Failed",
+    "createdAt": 1790731079763,
+    "startedAt": 1790731079768,
+    "error": "Error: No JSON output found in: [{\"videoId\": \"DiTd771WumE\", \"title\": \"APT.\", \"artist\": \"ROS\\u00c9\", \"album\": \"rosie\", \"duration\": \"2:50\", \"thumbnails\": [{\"url\": \"https://yt3.googleusercontent.com/-MtYkhdYuOvj8YWHA4afh-OUYMYHNpBpkk047QgGAxLJMLE570Pj0-LQjA2PW1ltedqTusKOjzXvuS8=w60-h60-l90-rj\", \"width\": 60, \"height\": 60}, {\"url\": \"https://yt3.googleusercontent.com/-MtYkhdYuOvj8YWHA4afh-OUYMYHNpBpkk047QgGAxLJMLE570Pj0-LQjA2PW1ltedqTusKOjzXvuS8=w120-h120-l90-rj\", \"width\": 120, \"height\": 120}], \"lyricsId\": null}, {\"videoId\": \"tYvFa2ARD24\", \"title\": \"Uptown Funk (feat. Bruno Mars)\", \"artist\": \"Mark Ronson\", \"album\": \"Uptown Special\", \"duration\": \"4:30\", \"thumbnails\": [{\"url\": \"https://yt3.googleusercontent.com/-NFtUA6dAmZKAy88a0k88UQ4VrYGKORqYBDSzMKCkwLJy5hgfMk3CppWBP61g6PXmJ69Dm41UNFke9k=w60-h60-l90-rj\", \"width\": 60, \"height\": 60}, {\"url\": \"https://yt3.googleusercontent.com/-NFtUA6dAmZKAy88a0k88UQ4VrYGKORqYBDSzMKCkwLJy5hgfMk3CppWBP61g6PXmJ69Dm41UNFke9k=w120-h120-l90-rj\", \"width\": 120, \"height\": 120}], \"lyricsId\": null}, {\"videoId\": \"IYFqc9gk4qI\", \"title\": \"Leave The Door Open\", \"artist\": \"Bruno Mars\", \"album\": \"An Evening With Silk Sonic\", \"duration\": \"4:03\", \"thumbnails\": [{\"url\": \"https://yt3.googleusercontent.com/HVal6U-xElhq8fBSqlsB7A30zFeXxDbigq5ADD2g47zYkajUwlpe7XZpBP35VfexjQP4fgB5oeOs4Fj7=w60-h60-l90-rj\", \"width\": 60, \"height\": 60}, {\"url\": \"https://yt3.googleusercontent.com/HVal6U-xElhq8fBSqlsB7A30zFeXxDbigq5ADD2g47zYkajUwlpe7XZpBP35VfexjQP4fgB5oeOs4Fj7=w120-h120-l90-rj\", \"width\": 120, \"height\": 120}], \"lyricsId\": null}, {\"videoId\": \"JucvYrdSIcM\", \"title\": \"That's What I Like\", \"artist\": \"Bruno Mars\", \"album\": \"24K Magic\", \"duration\": \"3:27\", \"thumbnails\": [{\"url\": \"https://yt3.googleusercontent.com/L0TeCOIXRykdcItgMBf2qrO72RDFn59k3wLd3OFlXO3y4dfrSeR-jD1NCPKiJsRN7gaf4ot_dWSVjfwXZA=w60-h60-l90-rj\", \"width\": 60, \"height\": 60}, {\"url\": \"https://yt3.googleusercontent.com/L0TeCOIXRykdcItgMBf2qrO72RDFn59k3wLd3OFlXO3y4dfrSeR-jD1NCPKiJsRN7gaf4ot_dWSVjfwXZA=w120-h120-l90-rj\", \"width\": 120, \"height\": 120}], \"lyricsId\": null}, {\"videoId\": \"DlFXDl_ROAM\", \"title\": \"Die With A Smile\", \"artist\": \"Lady Gaga\", \"album\": \"MAYHEM\", \"duration\": \"4:12\", \"thumbnails\": [{\"url\": \"https://yt3.googleusercontent.com/RFK4wHeGqwI3DndbARbRJB21IC0TcmqnrlyjxYK7T-nC8wlIVbfxNaCIFKNvSpchDKmYyVLe1RN36w=w60-h60-l90-rj\", \"width\": 60, \"height\": 60}, {\"url\": \"https://yt3.googleusercontent.com/RFK4wHeGqwI3DndbARbRJB21IC0TcmqnrlyjxYK7T-nC8wlIVbfxNaCIFKNvSpchDKmYyVLe1RN36w=w120-h120-l90-rj\", \"width\": 120, \"height\": 120}], \"lyricsId\": null}, {\"videoId\": \"T-n3pYLbNJ0\", \"title\": \"APT. (cover: ROS\\u00c9|Bruno Mars)\", \"artist\": \"DaHua\", \"album\": \"APT.\", \"duration\": \"2:50\", \"thumbnails\": [{\"url\": \"https://yt3.googleusercontent.com/FDrw-IZA52LPmbVakzDrVYlRmJg-V6dCa57TRbn4_LrUpeHaTl9IzpjR0FP-T5ZYwnqXJZVIu84qHf_R=w60-h60-l90-rj\", \"width\": 60, \"height\": 60}, {\"url\": \"https://yt3.googleusercontent.com/FDrw-IZA52LPmbVakzDrVYlRmJg-V6dCa57TRbn4_LrUpeHaTl9IzpjR0FP-T5ZYwnqXJZVIu84qHf_R=w120-h120-l90-rj\", \"width\": 120, \"height\": 120}], \"lyricsId\": null}, {\"videoId\": \"r7-A9NqUjRI\", \"title\": \"24K Magic\", \"artist\": \"Bruno Mars\", \"album\": \"24K Magic\", \"duration\": \"3:46\", \"thumbnails\": [{\"url\": \"https://yt3.googleusercontent.com/L0TeCOIXRykdcItgMBf2qrO72RDFn59k3wLd3OFlXO3y4dfrSeR-jD1NCPKiJsRN7gaf4ot_dWSVjfwXZA=w60-h60-l90-rj\", \"width\": 60, \"height\": 60}, {\"url\": \"https://yt3.googleusercontent.com/L0TeCOIXRykdcItgMBf2qrO72RDFn59k3wLd3OFlXO3y4dfrSeR-jD1NCPKiJsRN7gaf4ot_dWSVjfwXZA=w120-h120-l90-rj\", \"width\": 120, \"height\": 120}], \"lyricsId\": null}, {\"videoId\": \"FRtXs73iICo\", \"title\": \"It Will Rain\", \"artist\": \"Bruno Mars\", \"album\": \"It Will Rain\", \"duration\": \"4:18\", \"thumbnails\": [{\"url\": \"https://yt3.googleusercontent.com/QRn3Ky8_30FQkmozIXRLhOhovQEkXVjpYPQxXKl22Jss6slcBOM3Yot7bl01oEOQKGE3ifGS0FeXao3X=w60-h60-l90-rj\", \"width\": 60, \"height\": 60}, {\"url\": \"https://yt3.googleusercontent.com/QRn3Ky8_30FQkmozIXRLhOhovQEkXVjpYPQxXKl22Jss6slcBOM3Yot7bl01oEOQKGE3ifGS0FeXao3X=w120-h120-l90-rj\", \"width\": 120, \"height\": 120}], \"lyricsId\": null}, {\"videoId\": \"9pni0TsBqYs\", \"title\": \"APT. (Cover Version)\", \"artist\": \"ViSH-Up\", \"album\": \"APT. (Cover Version)\", \"duration\": \"2:43\", \"thumbnails\": [{\"url\": \"https://yt3.googleusercontent.com/zII4pxl_Rq0WcRK0QzuTqYKvuf651ciGXNmxxkscWp7g64HbkRpyH0uUFLeR6neHNj4vlgXOmy70PmE=w60-h60-l90-rj\", \"width\": 60, \"height\": 60}, {\"url\": \"https://yt3.googleusercontent.com/zII4pxl_Rq0WcRK0QzuTqYKvuf651ciGXNmxxkscWp7g64HbkRpyH0uUFLeR6neHNj4vlgXOmy70PmE=w120-h120-l90-rj\", \"width\": 120, \"height\": 120}], \"lyricsId\": null}, {\"videoId\": \"yhfJt9msO3s\", \"title\": \"ROS\\u00c9 & Bruno Mars - APT. Rock Remix\", \"artist\": \"Serenade Rhythms\", \"album\": \"ROS\\u00c9 & Bruno Mars - APT. Rock Remix\", \"duration\": \"2:55\", \"thumbnails\": [{\"url\": \"https://yt3.googleusercontent.com/_FXPPsrPULVtK-SnbVHfm0CAD6iYomu4GWGkSApC56ffuCcD671HXarhwMyIdnjeZl0g6pkBaJxjWDK7Qw=w60-h60-l90-rj\", \"width\": 60, \"height\": 60}, {\"url\": \"https://yt3.googleusercontent.com/_FXPPsrPULVtK-SnbVHfm0CAD6iYomu4GWGkSApC56ffuCcD671HXarhwMyIdnjeZl0g6pkBaJxjWDK7Qw=w120-h120-l90-rj\", \"width\": 120, \"height\": 120}], \"lyricsId\": null}, {\"videoId\": \"BF2_ipR1OI0\", \"title\": \"Risk It All\", \"artist\": \"Bruno Mars\", \"album\": \"The Romantic\", \"duration\": \"3:25\", \"thumbnails\": [{\"url\": \"https://yt3.googleusercontent.com/_1ejRnxNSULMWdqN8F-gEGUVfw5kZKrwKy5xNPnSxU6Xen61q09zCR1aQn4s4L9rDOi-fGnTh3qI-LwE=w60-h60-l90-rj\", \"width\": 60, \"height\": 60}, {\"url\": \"https://yt3.googleusercontent.com/_1ejRnxNSULMWdqN8F-gEGUVfw5kZKrwKy5xNPnSxU6Xen61q09zCR1aQn4s4L9rDOi-fGnTh3qI-LwE=w120-h120-l90-rj\", \"width\": 120, \"height\": 120}], \"lyricsId\": null}, {\"videoId\": \"m5AOasbdiOg\", \"title\": \"APT. (8D Audio)\", \"artist\": \"multiverse\", \"album\": \"APT.\", \"duration\": \"1:50\", \"thumbnails\": [{\"url\": \"https://yt3.googleusercontent.com/EznoQ-0T-B67h7so7VJQCbV5F6op1Ei7gNDsXPtQxlIQwCZBxVey7AZCmmK7ujvDgl7v_8BsILydRu1R=w60-h60-l90-rj\", \"width\": 60, \"height\": 60}, {\"url\": \"https://yt3.googleusercontent.com/EznoQ-0T-B67h7so7VJQCbV5F6op1Ei7gNDsXPtQxlIQwCZBxVey7AZCmmK7ujvDgl7v_8BsILydRu1R=w120-h120-l90-rj\", \"width\": 120, \"height\": 120}], \"lyricsId\": null}, {\"videoId\": \"zuaBRqUBhyw\", \"title\": \"Locked out of Heaven\", \"artist\": \"Bruno Mars\", \"album\": \"Unorthodox Jukebox\", \"duration\": \"3:54\", \"thumbnails\": [{\"url\": \"https://yt3.googleusercontent.com/m0WX28nJGAiRC8PgPrT7LrC5vRTWlSlQmnelZb2VR0HWDS-e8GPO0MvhEPM0C-KTjTtnvZsOS1R8y1cg=w60-h60-l90-rj\", \"width\": 60, \"height\": 60}, {\"url\": \"https://yt3.googleusercontent.com/m0WX28nJGAiRC8PgPrT7LrC5vRTWlSlQmnelZb2VR0HWDS-e8GPO0MvhEPM0C-KTjTtnvZsOS1R8y1cg=w120-h120-l90-rj\", \"width\": 120, \"height\": 120}], \"lyricsId\": null}, {\"videoId\": \"KMFd4Cy7YGs\", \"title\": \"Apt\", \"artist\": \"renewwed\", \"album\": \"Apt\", \"duration\": \"2:46\", \"thumbnails\": [{\"url\": \"https://yt3.googleusercontent.com/kf7McKhNAYPetRbE_o-vt3r5s0vCwbpdMyf8T9Bj4oyOar2rPxDb4HNm0j31T16H30rk0RYP994R88Ck=w60-h60-l90-rj\", \"width\": 60, \"height\": 60}, {\"url\": \"https://yt3.googleusercontent.com/kf7McKhNAYPetRbE_o-vt3r5s0vCwbpdMyf8T9Bj4oyOar2rPxDb4HNm0j31T16H30rk0RYP994R88Ck=w120-h120-l90-rj\", \"width\": 120, \"height\": 120}], \"lyricsId\": null}, {\"videoId\": \"Ms37tqm6aQs\", \"title\": \"apt\", \"artist\": \"slo\", \"album\": \"apt\", \"duration\": \"3:11\", \"thumbnails\": [{\"url\": \"https://yt3.googleusercontent.com/MvfAIMIrQUFeAi5khkH0YS54JkYpCdJT1mFoqkmGLAEswJeq4re6w40DxbKmqSvqHbdoJPLA70_Mv3Ln=w60-h60-l90-rj\", \"width\": 60, \"height\": 60}, {\"url\": \"https://yt3.googleusercontent.com/MvfAIMIrQUFeAi5khkH0YS54JkYpCdJT1mFoqkmGLAEswJeq4re6w40DxbKmqSvqHbdoJPLA70_Mv3Ln=w120-h120-l90-rj\", \"width\": 120, \"height\": 120}], \"lyricsId\": null}, {\"videoId\": \"GnUW4AF1LZo\", \"title\": \"Just the Way You Are\", \"artist\": \"Bruno Mars\", \"album\": \"Doo-Wops & Hooligans (Deluxe)\", \"duration\": \"3:41\", \"thumbnails\": [{\"url\": \"https://yt3.googleusercontent.com/Jrcws67rGflH1eJNV3dpOsBP8JosmTswvHNUQ2jD_a8-_EBYNXkUAwzHRPIgsuxY0G9Xf5MQde-mJQKP=w60-h60-s-l90-rj\", \"width\": 60, \"height\": 60}, {\"url\": \"https://yt3.googleusercontent.com/Jrcws67rGflH1eJNV3dpOsBP8JosmTswvHNUQ2jD_a8-_EBYNXkUAwzHRPIgsuxY0G9Xf5MQde-mJQKP=w120-h120-s-l90-rj\", \"width\": 120, \"height\": 120}], \"lyricsId\": null}, {\"videoId\": \"Iv45_f7OL-Q\", \"title\": \"apt (slowed + reverb)\", \"artist\": \"sl\\u014d\", \"album\": \"apt\", \"duration\": \"3:11\", \"thumbnails\": [{\"url\": \"https://yt3.googleusercontent.com/soTd4ckW8kD1kmzG-19q_usqlM1s1RY1DyGA61uOjWPgiIVlzK3JFP2thDs2ho0l0fYbHzYb4sn4na7r=w60-h60-l90-rj\", \"width\": 60, \"height\": 60}, {\"url\": \"https://yt3.googleusercontent.com/soTd4ckW8kD1kmzG-19q_usqlM1s1RY1DyGA61uOjWPgiIVlzK3JFP2thDs2ho0l0fYbHzYb4sn4na7r=w120-h120-l90-rj\", \"width\": 120, \"height\": 120}], \"lyricsId\": null}, {\"videoId\": \"k_wXfkhOpGY\", \"title\": \"APT\", \"artist\": \"Jayy Rose\", \"album\": \"APT\", \"duration\": \"1:58\", \"thumbnails\": [{\"url\": \"https://yt3.googleusercontent.com/4A27yT8mblABNiWxaCJdcpwCg5bQsggL-VhtWAfFWvJri5J6fPyR-YuSg-KEp6T9XSctmBKUqDZf6HFV=w60-h60-l90-rj\", \"width\": 60, \"height\": 60}, {\"url\": \"https://yt3.googleusercontent.com/4A27yT8mblABNiWxaCJdcpwCg5bQsggL-VhtWAfFWvJri5J6fPyR-YuSg-KEp6T9XSctmBKUqDZf6HFV=w120-h120-l90-rj\", \"width\": 120, \"height\": 120}], \"lyricsId\": null}, {\"videoId\": \"6jghl0yOERc\", \"title\": \"APT.\", \"artist\": \"Bongo Cat\", \"album\": \"APT.\", \"duration\": \"2:55\", \"thumbnails\": [{\"url\": \"https://yt3.googleusercontent.com/FNWpqqzF7lTDJuXCa1_6NdNAQrx3WCVA8zdw8f3ucWRe-Y_jgnQxk3fYLjrPD8GpsS-IMaf3NpVbmUThyQ=w60-h60-l90-rj\", \"width\": 60, \"height\": 60}, {\"url\": \"https://yt3.googleusercontent.com/FNWpqqzF7lTDJuXCa1_6NdNAQrx3WCVA8zdw8f3ucWRe-Y_jgnQxk3fYLjrPD8GpsS-IMaf3NpVbmUThyQ=w120-h120-l90-rj\", \"width\": 120, \"height\": 120}], \"lyricsId\": null}, {\"videoId\": \"SviE5fHCV0c\", \"title\": \"Too Good to Say Goodbye\", \"artist\": \"Bruno Mars\", \"album\": \"24K Magic\", \"duration\": \"4:42\", \"thumbnails\": [{\"url\": \"https://yt3.googleusercontent.com/L0TeCOIXRykdcItgMBf2qrO72RDFn59k3wLd3OFlXO3y4dfrSeR-jD1NCPKiJsRN7gaf4ot_dWSVjfwXZA=w60-h60-l90-rj\", \"width\": 60, \"height\": 60}, {\"url\": \"https://yt3.googleusercontent.com/L0TeCOIXRykdcItgMBf2qrO72RDFn59k3wLd3OFlXO3y4dfrSeR-jD1NCPKiJsRN7gaf4ot_dWSVjfwXZA=w120-h120-l90-rj\", \"width\": 120, \"height\": 120}], \"lyricsId\": null}]\n",
+    "completedAt": 1790731081324
+  },
+  "gen_apt-done_1790731313292": {
+    "id": "gen_apt-done_1790731313292",
+    "status": "completed",
+    "query": "APT ROSÉ Bruno Mars",
+    "songId": "apt-done",
+    "progress": "Completed!",
+    "createdAt": 1790731313292,
+    "startedAt": 1790731313298,
+    "completedAt": 1790731318610,
+    "result": {
+      "songId": "apt-done",
+      "title": "APT.",
+      "videoId": "DiTd771WumE"
+    }
+  },
+  "gen_ditd771wume_1790731391078": {
+    "id": "gen_ditd771wume_1790731391078",
+    "status": "completed",
+    "query": "apt rose bruno mars",
+    "songId": "ditd771wume",
+    "progress": "Completed!",
+    "createdAt": 1790731391079,
+    "startedAt": 1790731391087,
+    "completedAt": 1790731397895,
+    "result": {
+      "songId": "ditd771wume",
+      "title": "APT.",
+      "videoId": "DiTd771WumE"
+    }
+  },
+  "gen_upyokudjfdy_1790731460986": {
+    "id": "gen_upyokudjfdy_1790731460986",
+    "status": "completed",
+    "query": "jamie fox fall for your type",
+    "songId": "upyokudjfdy",
+    "progress": "Completed!",
+    "createdAt": 1790731460986,
+    "startedAt": 1790731460993,
+    "completedAt": 1790731466492,
+    "result": {
+      "songId": "upyokudjfdy",
+      "title": "Fall For Your Type (feat. Drake)",
+      "videoId": "uPYoKUdJFDY"
+    }
+  },
+  "gen_ng3y6ddbowm_1790772505866": {
+    "id": "gen_ng3y6ddbowm_1790772505866",
+    "status": "completed",
+    "query": "brown skin girl",
+    "songId": "ng3y6ddbowm",
+    "progress": "Completed!",
+    "createdAt": 1790772505866,
+    "startedAt": 1790772505873,
+    "completedAt": 1790772513133,
+    "result": {
+      "songId": "ng3y6ddbowm",
+      "title": "BROWN SKIN GIRL",
+      "videoId": "Ng3y6ddBoWM"
+    }
+  },
+  "gen_upyokudjfdy_1790775226778": {
+    "id": "gen_upyokudjfdy_1790775226778",
+    "status": "completed",
+    "query": "Fall for your type",
+    "songId": "upyokudjfdy",
+    "progress": "Completed!",
+    "createdAt": 1790775226778,
+    "startedAt": 1790775226787,
+    "completedAt": 1790775233885,
+    "result": {
+      "songId": "upyokudjfdy",
+      "title": "Fall For Your Type (feat. Drake)",
+      "videoId": "uPYoKUdJFDY"
+    }
+  },
+  "gen_upyokudjfdy_1790777803728": {
+    "id": "gen_upyokudjfdy_1790777803728",
+    "status": "completed",
+    "query": "Fall for your type",
+    "songId": "upyokudjfdy",
+    "progress": "Completed!",
+    "createdAt": 1790777803728,
+    "startedAt": 1790777803732,
+    "completedAt": 1790777818534,
+    "result": {
+      "songId": "upyokudjfdy",
+      "title": "Fall For Your Type (feat. Drake)",
+      "videoId": "uPYoKUdJFDY"
+    }
+  },
+  "gen_apt-auto-test_1790778920658": {
+    "id": "gen_apt-auto-test_1790778920658",
+    "status": "failed",
+    "query": "APT ROSÉ Bruno Mars",
+    "songId": "apt-auto-test",
+    "progress": "Failed",
+    "createdAt": 1790778920658,
+    "startedAt": 1790778920664,
+    "error": "Error: {\"error\": \"name 'true' is not defined\"}\n",
+    "completedAt": 1790778931409
+  },
+  "gen_apt-auto-test_1790779211708": {
+    "id": "gen_apt-auto-test_1790779211708",
+    "status": "failed",
+    "query": "APT ROSÉ Bruno Mars",
+    "songId": "apt-auto-test",
+    "progress": "Failed",
+    "createdAt": 1790779211708,
+    "startedAt": 1790779211716,
+    "error": "Error: {\"error\": \"name 'true' is not defined\"}\n",
+    "completedAt": 1790779223160
+  },
+  "gen_upyokudjfdy_1790781986827": {
+    "id": "gen_upyokudjfdy_1790781986827",
+    "status": "completed",
+    "query": "fall for your type",
+    "songId": "upyokudjfdy",
+    "progress": "Completed!",
+    "createdAt": 1790781986827,
+    "startedAt": 1790781986832,
+    "completedAt": 1790781999330,
+    "result": {
+      "songId": "upyokudjfdy",
+      "title": "Fall For Your Type (feat. Drake)",
+      "videoId": "uPYoKUdJFDY"
+    }
+  }
+}

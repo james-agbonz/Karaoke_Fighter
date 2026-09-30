@@ -1,0 +1,328 @@
+{
+ "id": "apt-test",
+ "title": "APT ROS\u00c9",
+ "youtubeId": "DiTd771WumE",
+ "syncOffset": 0,
+ "duration": 170,
+ "sourceTrack": {
+  "index": -1,
+  "name": "basic (no MIDI extraction)"
+ },
+ "notes": [],
+ "lyrics": [
+  {
+   "time": 0.0,
+   "text": "\ucc44\uc601\uc774\uac00 \uc88b\uc544\ud558\ub294"
+  },
+  {
+   "time": 2.1794871794871793,
+   "text": "\ub79c\ub364 \uac8c\uc784"
+  },
+  {
+   "time": 4.358974358974359,
+   "text": "\ub79c\ub364 \uac8c\uc784"
+  },
+  {
+   "time": 6.538461538461538,
+   "text": "Game start"
+  },
+  {
+   "time": 8.717948717948717,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 10.897435897435898,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 13.076923076923077,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 15.256410256410257,
+   "text": "Uh, uh-huh, uh-huh"
+  },
+  {
+   "time": 17.435897435897434,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 19.615384615384617,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 21.794871794871796,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 23.974358974358974,
+   "text": "Uh, uh-huh, uh-huh"
+  },
+  {
+   "time": 26.153846153846153,
+   "text": "Kissy face, kissy face"
+  },
+  {
+   "time": 28.333333333333332,
+   "text": "Sent to your phone, but"
+  },
+  {
+   "time": 30.512820512820515,
+   "text": "I'm tryna kiss your lips for real (uh-huh, uh-huh)"
+  },
+  {
+   "time": 32.69230769230769,
+   "text": "Red hearts, red hearts"
+  },
+  {
+   "time": 34.87179487179487,
+   "text": "That's what I'm on, yeah"
+  },
+  {
+   "time": 37.05128205128205,
+   "text": "Come give me somethin' I can feel, oh-oh-oh"
+  },
+  {
+   "time": 39.23076923076923,
+   "text": "Don't you want me like I want you, baby?"
+  },
+  {
+   "time": 41.41025641025641,
+   "text": "Don't you need me like I need you now?"
+  },
+  {
+   "time": 43.58974358974359,
+   "text": "Sleep tomorrow, but tonight, go crazy"
+  },
+  {
+   "time": 45.76923076923077,
+   "text": "All you gotta do is just meet me at the"
+  },
+  {
+   "time": 47.94871794871795,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 50.12820512820513,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 52.30769230769231,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 54.48717948717949,
+   "text": "Uh, uh-huh, uh-huh"
+  },
+  {
+   "time": 56.666666666666664,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 58.84615384615385,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 61.02564102564103,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 63.205128205128204,
+   "text": "Uh, uh-huh, uh-huh"
+  },
+  {
+   "time": 65.38461538461539,
+   "text": "It's whatever (whatever), it's whatever (whatever)"
+  },
+  {
+   "time": 67.56410256410257,
+   "text": "It's whatever (whatever) you like (ooh)"
+  },
+  {
+   "time": 69.74358974358974,
+   "text": "Turn this \uc544\ud30c\ud2b8 into a club (uh-huh, uh-huh)"
+  },
+  {
+   "time": 71.92307692307692,
+   "text": "I'm talkin' drink, dance, smoke, freak, party all night (come on)"
+  },
+  {
+   "time": 74.1025641025641,
+   "text": "\uac74\ubc30, \uac74\ubc30 girl, what's up? Oh-oh-oh"
+  },
+  {
+   "time": 76.28205128205128,
+   "text": "Don't you want me like I want you, baby?"
+  },
+  {
+   "time": 78.46153846153847,
+   "text": "Don't you need me like I need you now?"
+  },
+  {
+   "time": 80.64102564102564,
+   "text": "Sleep tomorrow, but tonight, go crazy"
+  },
+  {
+   "time": 82.82051282051282,
+   "text": "All you gotta do is just meet me at the"
+  },
+  {
+   "time": 85.0,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 87.17948717948718,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 89.35897435897436,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 91.53846153846153,
+   "text": "Uh, uh-huh, uh-huh"
+  },
+  {
+   "time": 93.71794871794872,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 95.8974358974359,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 98.07692307692308,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 100.25641025641026,
+   "text": "Uh, uh-huh, uh-huh"
+  },
+  {
+   "time": 102.43589743589743,
+   "text": "Hey, so now you know the game"
+  },
+  {
+   "time": 104.61538461538461,
+   "text": "Are you ready?"
+  },
+  {
+   "time": 106.7948717948718,
+   "text": "'Cause I'm comin' to get ya, get ya, get ya"
+  },
+  {
+   "time": 108.97435897435898,
+   "text": "Hold on, hold on"
+  },
+  {
+   "time": 111.15384615384616,
+   "text": "I'm on my way"
+  },
+  {
+   "time": 113.33333333333333,
+   "text": "Yeah, yeah, yeah-yeah, yeah"
+  },
+  {
+   "time": 115.51282051282051,
+   "text": "I'm on my way"
+  },
+  {
+   "time": 117.6923076923077,
+   "text": "Hold on, hold on"
+  },
+  {
+   "time": 119.87179487179488,
+   "text": "I'm on my way"
+  },
+  {
+   "time": 122.05128205128206,
+   "text": "Yeah, yeah, yeah-yeah, yeah"
+  },
+  {
+   "time": 124.23076923076923,
+   "text": "I'm on my way"
+  },
+  {
+   "time": 126.41025641025641,
+   "text": "Don't you want me like I want you, baby?"
+  },
+  {
+   "time": 128.5897435897436,
+   "text": "Don't you need me like I need you now?"
+  },
+  {
+   "time": 130.76923076923077,
+   "text": "Sleep tomorrow, but tonight, go crazy"
+  },
+  {
+   "time": 132.94871794871796,
+   "text": "All you gotta do is just meet me at the"
+  },
+  {
+   "time": 135.12820512820514,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 137.30769230769232,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 139.48717948717947,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 141.66666666666666,
+   "text": "Just meet me at the (uh-huh, uh-huh)"
+  },
+  {
+   "time": 143.84615384615384,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 146.02564102564102,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 148.2051282051282,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 150.3846153846154,
+   "text": "Just meet me at the (uh-huh, uh-huh)"
+  },
+  {
+   "time": 152.56410256410257,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 154.74358974358975,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 156.92307692307693,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 159.10256410256412,
+   "text": "Just meet me at the (uh-huh, uh-huh)"
+  },
+  {
+   "time": 161.28205128205127,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 163.46153846153845,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 165.64102564102564,
+   "text": "\uc544\ud30c\ud2b8, \uc544\ud30c\ud2b8"
+  },
+  {
+   "time": 167.82051282051282,
+   "text": "Uh, uh-huh, uh-huh"
+  }
+ ],
+ "noteCount": 0,
+ "autoGenerated": true
+}

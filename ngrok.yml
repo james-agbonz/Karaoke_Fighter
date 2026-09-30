@@ -1,5 +1,5 @@
 version: "2"
-authtoken: 38j6BwWe0FLWoU7SBZxu9TJ0AbZ_7r4zhUXQzWCqgkKVmYfZa
+authtoken: ${NGROK_AUTHTOKEN}
 tunnels:
   web:
     addr: 3000

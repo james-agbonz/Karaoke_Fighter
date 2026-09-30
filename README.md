@@ -34,12 +34,47 @@ A local multiplayer karaoke fighting game where two players battle using their s
 
 ## 📋 Prerequisites
 
-- **Node.js** v18 or higher
+- **Node.js** v18 or higher (or Docker)
 - **npm** v9 or higher
 - All devices on the **same local network**
 - Microphone access on player devices
 
-## 🚀 Quick Start
+## 🐳 Docker Quick Start
+
+### Production (single container with nginx + server)
+
+```bash
+# Build and run
+docker compose up --build -d
+
+# View logs
+docker compose logs -f
+
+# Stop
+docker compose down
+```
+
+Access at:
+- Host: http://localhost:3000/host
+- Player 1: http://localhost:3000/client?p=1
+- Player 2: http://localhost:3000/client?p=2
+
+### Development (hot reload)
+
+```bash
+docker compose --profile dev up --build
+```
+
+### With Ngrok (public URLs for mobile)
+
+```bash
+# Add your ngrok authtoken to .env first
+docker compose --profile ngrok up --build
+```
+
+Ngrok dashboard: http://localhost:4040
+
+## 🚀 Quick Start (Local Node.js)
 
 ### 1. Install Dependencies
 
@@ -154,6 +189,58 @@ Edit `constants.ts` to adjust:
 - `BASE_DAMAGE` - Minimum damage per hit (default: 5)
 - `MAX_BONUS_DAMAGE` - Maximum bonus damage (default: 15)
 - `PERFECT_THRESHOLD_CENTS` - Perfect pitch tolerance (default: 10)
+
+## 🤖 Auto Song Pack Generation (NEW)
+
+Generate complete song packs (MIDI + lyrics + metadata) from just a search query:
+
+### Prerequisites
+
+```bash
+# Python dependencies
+pip install -r requirements.txt
+# → demucs, basic-pitch, yt-dlp
+
+# Node dependencies (already in package.json)
+npm install
+```
+
+### Usage
+
+```bash
+# Basic usage - search and auto-generate
+npm run song:auto "APT ROSÉ Bruno Mars" --id apt
+
+# Custom output directory
+npm run song:auto "Bohemian Rhapsody Queen" --id bohemian-rhapsody --output ./songs
+
+# Keep temp files for debugging
+npm run song:auto "I'm Yours Jason Mraz" --id im-yours --keep-temp
+```
+
+### What it does automatically:
+
+1. **Searches YTMusic** for the song → gets videoId, title, artist
+2. **Fetches official synced lyrics** from YouTube Music
+3. **Downloads audio** via yt-dlp
+4. **Separates stems** with Demucs → clean vocals.wav + instrumental.wav
+5. **Extracts MIDI** from vocals using Spotify's basic-pitch
+6. **Selects melody track** using singability scoring (same as add-song.mjs)
+7. **Monophonizes** the melody (removes harmonies)
+8. **Measures duration** from instrumental
+9. **Writes song.json** to `songs/<id>/song.json` - ready to play!
+
+### Output structure:
+
+```
+songs/apt/
+├── song.json          # Complete pack (notes, lyrics, metadata)
+├── audio.mp3          # Original (if kept)
+├── stems/
+│   ├── vocals.wav     # Isolated vocal track
+│   └── no_vocals.wav  # Clean instrumental
+└── melody.mid         # Extracted MIDI
+```
 
 ## 🎵 Adding MIDI Files
 
