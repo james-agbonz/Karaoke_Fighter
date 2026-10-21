@@ -1,103 +1,69 @@
 #!/usr/bin/env node
 // ============================================================
-// Auto Song Pack Generator - Wrapper for Python implementation
-// ============================================================
-// Usage:
-//   node scripts/auto-song-pack.ts "APT ROSÉ Bruno Mars" --id apt
+// Auto Song Pack — command-line wrapper around scripts/auto-song-pack.py
+//
+//   npm run song:auto -- "APT ROSÉ Bruno Mars"
+//   npm run song:auto -- "Hey Jude Beatles" --id hey-jude-auto --keep-temp
+//   npm run song:auto -- --check          (is everything installed?)
+//
+// Uses the same Python the server uses: $PYTHON_BIN, else ./.venv, else python3.
+// Arguments are passed as a list (never through a shell), so any song title is safe.
 // ============================================================
 
 import { spawn } from 'child_process';
+import { existsSync } from 'fs';
 import { join, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
-const __dirname = resolve(fileURLToPath(import.meta.url), '..');
+const root = resolve(fileURLToPath(import.meta.url), '..', '..');
 
-interface Args {
-  query: string;
-  id: string;
-  outputDir?: string;
-  keepTemp?: boolean;
+function pythonBin(): string {
+  if (process.env.PYTHON_BIN) return process.env.PYTHON_BIN;
+  const candidates = process.platform === 'win32'
+    ? ['.venv\\Scripts\\python.exe', 'venv\\Scripts\\python.exe']
+    : ['.venv/bin/python', 'venv/bin/python'];
+  for (const c of candidates) if (existsSync(join(root, c))) return join(root, c);
+  return process.platform === 'win32' ? 'python' : 'python3';
 }
 
-function parseArgs(): Args {
-  const args = process.argv.slice(2);
-  const result: Args = { query: '', id: '' };
-
-  for (let i = 0; i < args.length; i++) {
-    if (args[i] === '--id') result.id = args[++i];
-    else if (args[i] === '--output') result.outputDir = args[++i];
-    else if (args[i] === '--keep-temp') result.keepTemp = true;
-    else if (!result.query) result.query = args[i];
-    else result.query += ' ' + args[i];
-  }
-
-  if (!result.query || !result.id) {
-    console.error('Usage: node auto-song-pack.ts "search query" --id song-id [--output dir] [--keep-temp]');
-    process.exit(1);
-  }
-  return result;
+const args = process.argv.slice(2);
+if (args.length === 0) {
+  console.error('Usage: npm run song:auto -- "song name and artist" [--id song-id] [--keep-temp] [--force]');
+  console.error('       npm run song:auto -- --check');
+  process.exit(1);
 }
 
-function run(cmd: string, cwd?: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    console.log(`  $ ${cmd}`);
-    const proc = spawn(cmd, { shell: true, cwd, stdio: ['inherit', 'pipe', 'pipe'] });
-    let stdout = '';
-    let stderr = '';
-    proc.stdout?.on('data', d => { stdout += d.toString(); });
-    proc.stderr?.on('data', d => { stderr += d.toString(); });
-    proc.on('close', code => {
-      if (code !== 0) {
-        reject(new Error(stderr || `Exit code ${code}`));
-      } else {
-        resolve(stdout.trim());
-      }
-    });
-  });
-}
+const pyArgs = args[0] === '--check'
+  ? ['check']
+  : ['auto', ...args];
 
-async function main() {
-  const { query, id, outputDir, keepTemp } = parseArgs();
-  const outDir = outputDir || join(__dirname, '..', 'songs', id);
-  const tempDir = join(__dirname, '..', '.temp', id);
+const proc = spawn(pythonBin(), [join(root, 'scripts', 'auto-song-pack.py'), ...pyArgs], {
+  cwd: root,
+  stdio: ['ignore', 'pipe', 'inherit'],   // progress/logs stream straight to the terminal
+  env: { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONUNBUFFERED: '1' },
+});
 
-  console.log(`\n🎵 Auto-generating song pack: "${query}" → ${id}`);
-  console.log(`📁 Output: ${outDir}`);
-  console.log(`🗂️  Temp: ${tempDir}\n`);
-
+let out = '';
+proc.stdout.on('data', d => { out += d.toString(); });
+proc.on('error', err => {
+  console.error(`Could not start Python (${pythonBin()}): ${err.message}`);
+  console.error('Set up with: python3 -m venv .venv && .venv/bin/pip install -r requirements.txt');
+  process.exit(1);
+});
+proc.on('close', code => {
+  const line = out.trim().split('\n').pop() || '';
   try {
-    // Call Python script which handles the full pipeline
-    const pythonScript = join(__dirname, 'auto-song-pack.py');
-    const cmd = `python3 "${pythonScript}" generate "${query}" "${id}"`;
-    
-    console.log('🔍 Searching YTMusic...');
-    const searchCmd = `python3 "${pythonScript}" search "${query}" 1`;
-    const searchResult = await run(searchCmd);
-    const results = JSON.parse(searchResult);
-    if (!results.length) throw new Error('No results found');
-    const song = results[0];
-    console.log(`  ✓ Found: ${song.title} by ${song.artist} (${song.videoId})`);
-
-    console.log('📝 Fetching lyrics...');
-    const lyricsResult = await run(`python3 "${pythonScript}" details "${song.videoId}"`);
-    const details = JSON.parse(lyricsResult);
-    console.log(`  ✓ Got lyrics: ${details.lyrics ? 'yes' : 'no'}`);
-
-    console.log('⬇️  Downloading & processing (this takes a few minutes)...');
-    const generateCmd = `python3 "${pythonScript}" generate "${song.videoId}" "${id}" "${song.title}"`;
-    await run(generateCmd);
-
-    console.log(`\n✅ Created ${outDir}/song.json`);
-    console.log(`   Check the song pack in the Host UI → Song Packs dropdown`);
-
-  } catch (err) {
-    console.error('\n❌ Failed:', err);
-    if (!keepTemp) {
-      console.log('💡 Re-run with --keep-temp to inspect intermediate files');
+    const result = JSON.parse(line);
+    if (result.success) {
+      console.log(`\n✅ songs/${result.songId}/song.json — ${result.noteCount} notes, ${result.lyricCount} lyric lines (${result.lyricsSource}), ${result.seconds}s`);
+      console.log('   It now appears in the Host screen → Song Packs dropdown.');
+    } else if ('ok' in result) {
+      console.log(result.ok ? '✅ Everything is installed.' : `❌ Missing: ${result.missing.join(', ')}\n   ${result.hint}`);
+    } else {
+      console.error(`\n❌ ${result.error}${result.hint ? `\n💡 ${result.hint}` : ''}`);
     }
-    console.log(JSON.stringify({ success: false, error: String(err) }));
-    process.exit(1);
+  } catch {
+    if (line) console.log(line);
   }
-}
-
-main();
+  process.exit(code ?? 1);
+});

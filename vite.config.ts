@@ -72,6 +72,11 @@ export default defineConfig(({ mode }) => {
           '/lyrics': {
             target: 'http://localhost:3001',
             changeOrigin: true
+          },
+          // song packs (including freshly auto-generated ones) come from the game server
+          '/songs': {
+            target: 'http://localhost:3001',
+            changeOrigin: true
           }
         }
       },

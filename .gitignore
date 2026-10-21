@@ -23,10 +23,6 @@ ngrok-urls.json
 public/ngrok-urls.json
 ngrok.yml
 
-# Docker
-Dockerfile*
-docker-compose*
-nginx.conf
 
 # Editor directories and files
 .vscode/*
@@ -43,3 +39,10 @@ nginx.conf
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+# Auto song generator: runtime data, temp audio, Python env
+data/
+.temp/
+.venv/
+venv/
+__pycache__/
+*.pyc

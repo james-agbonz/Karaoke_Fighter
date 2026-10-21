@@ -1,17 +1,15 @@
-# Python dependencies for auto-song-pack.ts
-# Install with: pip install -r requirements.txt
+# Python dependencies for the Auto Song Generator (scripts/auto-song-pack.py)
+#
+# Set up once, inside the project folder (keeps these out of your system Python):
+#   python3 -m venv .venv
+#   .venv/bin/pip install -r requirements.txt          (Windows: .venv\Scripts\pip install -r requirements.txt)
+# The server finds .venv automatically. Also install ffmpeg:  Mac: brew install ffmpeg
+#
+# Works on Python 3.10 – 3.13.
 
-# ytmusicapi - YouTube Music API (for search & lyrics)
-ytmusicapi>=1.4.0
-
-# Demucs - source separation (vocals + instrumental)
-demucs>=4.0.0
-
-# basic-pitch - audio to MIDI conversion (Spotify)
-basic-pitch>=0.2.0
-
-# yt-dlp - YouTube audio download
-yt-dlp>=2024.0.0
-
-# ffmpeg-python - audio duration probe (optional, uses ffprobe CLI)
-# ffmpeg-python>=0.2.0
+ytmusicapi>=1.8.0     # YouTube Music search + timed lyrics
+yt-dlp>=2024.10.0     # downloads the song audio (update often: pip install -U yt-dlp)
+demucs>=4.0.1         # AI vocal separation (installs PyTorch; first run downloads an ~80 MB model)
+librosa>=0.10.0       # pYIN pitch tracking: isolated vocals -> melody notes
+soundfile>=0.12.0
+numpy>=1.24
