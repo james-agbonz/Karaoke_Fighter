@@ -33,7 +33,6 @@ const HostPage: React.FC = () => {
     p2Ready: false,
     hostConnected: false
   });
-  const [allReady, setAllReady] = useState(false);
 
   // Song setup
   const [youtubeUrl, setYoutubeUrl] = useState('');
@@ -101,10 +100,6 @@ const HostPage: React.FC = () => {
     // Socket event handlers
     socketClient.on('lobby_update', (state: LobbyState) => {
       setLobbyState(state);
-    });
-
-    socketClient.on('all_ready', () => {
-      setAllReady(true);
     });
 
     socketClient.on('pitch_update', (data: { slot: 1 | 2; pitch: number }) => {
@@ -342,7 +337,12 @@ const HostPage: React.FC = () => {
       // Load the matched YouTube video
       if (pack.youtubeId) {
         setYoutubeUrl(`https://www.youtube.com/watch?v=${pack.youtubeId}`);
-        loadYouTubeById(pack.youtubeId);
+        setYoutubeId(pack.youtubeId);
+        if (ytPlayerRef.current) {
+          ytPlayerRef.current.loadVideoById(pack.youtubeId);
+        } else {
+          loadYouTubeById(pack.youtubeId);
+        }
       }
       console.log(`[HostPage] Loaded song pack ${id}: ${pack.notes.length} notes, ${pack.lyrics.length} lyric lines, offset ${offset}s`);
     } catch (err) {
@@ -824,7 +824,8 @@ const HostPage: React.FC = () => {
   const canStart = connected && 
     lobbyState.p1Connected && 
     lobbyState.p2Connected && 
-    allReady && 
+    lobbyState.p1Ready &&
+    lobbyState.p2Ready &&
     youtubeId && 
     midiNotes.length > 0 &&
     lyrics.length > 0;
