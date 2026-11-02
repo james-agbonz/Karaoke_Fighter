@@ -23,6 +23,11 @@ declare global {
   }
 }
 
+// A pitch reading older than this is treated as silence (players' pages send ~23 per second).
+const PITCH_STALE_MS = 300;
+// No messages at all from a player's page for this long: show a warning on the host.
+const MIC_SILENT_MS = 2500;
+
 const HostPage: React.FC = () => {
   // Connection state
   const [connected, setConnected] = useState(false);
@@ -105,6 +110,10 @@ const HostPage: React.FC = () => {
   // Refs for pitch values to avoid stale closure in game loop
   const p1PitchRef = useRef(-1);
   const p2PitchRef = useRef(-1);
+  // When each player's page last sent anything (performance.now ms). A pitch older than
+  // PITCH_STALE_MS counts as silence; no message at all for MIC_SILENT_MS means the page stopped.
+  const lastPitchAtRef = useRef<{ 1: number; 2: number }>({ 1: 0, 2: 0 });
+  const [micSilent, setMicSilent] = useState<{ 1: boolean; 2: boolean }>({ 1: false, 2: false });
   
   // YouTube player
   const ytPlayerRef = useRef<any>(null);
@@ -133,8 +142,7 @@ const HostPage: React.FC = () => {
     });
 
     socketClient.on('pitch_update', (data: { slot: 1 | 2; pitch: number }) => {
-      console.log(data);
-      console.log(p1PitchRef.current, p2PitchRef.current);
+      lastPitchAtRef.current[data.slot] = performance.now();
       if (data.slot === 1) {
         setP1Pitch(data.pitch);
         p1PitchRef.current = data.pitch;
@@ -755,12 +763,15 @@ const HostPage: React.FC = () => {
         return finalState;
       }
 
-      // Process tick - use refs to get current pitch values (avoid stale closure)
+      // Process tick - use refs to get current pitch values (avoid stale closure).
+      // A pitch we haven't heard about recently means the player stopped singing.
+      const nowMs = performance.now();
+      const fresh = (slot: 1 | 2, pitch: number) => nowMs - lastPitchAtRef.current[slot] <= PITCH_STALE_MS ? pitch : -1;
       const { gameState: newState } = processGameTick(
         prevState,
         midiNotes,
-        p1PitchRef.current,
-        p2PitchRef.current,
+        fresh(1, p1PitchRef.current),
+        fresh(2, p2PitchRef.current),
         currentTime
       );
 
@@ -805,6 +816,21 @@ const HostPage: React.FC = () => {
 
     gameLoopRef.current = requestAnimationFrame(gameLoop);
   }, [midiNotes, lyrics]);
+
+  // While playing: drop stale pitch readouts (so the dot disappears when you stop singing)
+  // and flag a player whose page has stopped sending (closed, asleep, mic off).
+  useEffect(() => {
+    if (gameState?.phase !== GamePhase.PLAYING) { setMicSilent({ 1: false, 2: false }); return; }
+    const startedAt = performance.now();
+    const timer = setInterval(() => {
+      const now = performance.now();
+      if (now - lastPitchAtRef.current[1] > PITCH_STALE_MS && p1PitchRef.current !== -1) { p1PitchRef.current = -1; setP1Pitch(-1); }
+      if (now - lastPitchAtRef.current[2] > PITCH_STALE_MS && p2PitchRef.current !== -1) { p2PitchRef.current = -1; setP2Pitch(-1); }
+      const silent = (slot: 1 | 2) => now - startedAt > MIC_SILENT_MS && now - lastPitchAtRef.current[slot] > MIC_SILENT_MS;
+      setMicSilent(prev => (prev[1] === silent(1) && prev[2] === silent(2)) ? prev : { 1: silent(1), 2: silent(2) });
+    }, 200);
+    return () => clearInterval(timer);
+  }, [gameState?.phase]);
 
   // Start game loop when game enters PLAYING phase
   useEffect(() => {
@@ -1266,6 +1292,7 @@ const HostPage: React.FC = () => {
                 <p className="text-cyan-400 font-mono font-bold text-xl">
                   {p1Pitch > 0 ? `${Math.round(p1Pitch)}Hz` : '—'}
                 </p>
+                {micSilent[1] && <p className="text-[10px] leading-tight text-red-400 mt-1">P1's mic isn't sending — keep the Player 1 page open</p>}
               </div>
               <div className="flex-1 text-center min-w-0">
                 <p className="text-3xl md:text-4xl font-bold uppercase text-cyan-300 leading-tight">{currentLyric || '♪ ♪ ♪'}</p>
@@ -1280,6 +1307,7 @@ const HostPage: React.FC = () => {
                 <p className="text-cyan-400 font-mono font-bold text-xl">
                   {p2Pitch > 0 ? `${Math.round(p2Pitch)}Hz` : '—'}
                 </p>
+                {micSilent[2] && <p className="text-[10px] leading-tight text-red-400 mt-1">P2's mic isn't sending — keep the Player 2 page open</p>}
               </div>
             </div>
           </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { socketClient } from '../services/socketClient';
-import { autoCorrelate } from '../services/pitchDetection';
+import { detectPitch } from '../services/pitchDetection';
+import { startMicCapture, type MicCapture } from '../services/micCapture';
 import { GamePhase } from '../types';
 import type { PlayerSlot, GameState } from '../types';
 import { Mic, MicOff, CheckCircle, Loader2, Wifi, WifiOff } from 'lucide-react';
@@ -23,11 +24,9 @@ const ClientPage: React.FC = () => {
   const [currentPitch, setCurrentPitch] = useState(-1);
   const [volume, setVolume] = useState(0);
 
-  // Audio refs
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
-  const animationFrameRef = useRef<number | null>(null);
+  // Audio: capture runs on the audio clock, so it keeps working when this page is in the background
+  const captureRef = useRef<MicCapture | null>(null);
+  const wakeLockRef = useRef<any>(null);
   
   // Refs to avoid stale closure in mic loop
   const gameStartedRef = useRef(false);
@@ -64,6 +63,7 @@ const ClientPage: React.FC = () => {
       console.log('[Client] ✅ GAME_START event received - pitch transmission now enabled');
       setGameStarted(true);
       gameStartedRef.current = true;
+      keepScreenOn();
     });
 
     socketClient.on('game_state', (state: GameState) => {
@@ -72,7 +72,8 @@ const ClientPage: React.FC = () => {
 
     socketClient.on('game_over', () => {
       setGameStarted(false);
-      stopMicLoop();
+      gameStartedRef.current = false;   // stop sending; keep the mic open for the next round
+      releaseScreen();
     });
 
     socketClient.on('disconnected', () => {
@@ -80,14 +81,31 @@ const ClientPage: React.FC = () => {
       setError('Disconnected from server');
     });
 
+    // A phone's screen lock is released whenever the page is hidden: take it again on return
+    const onVisible = () => { if (document.visibilityState === 'visible' && gameStartedRef.current) keepScreenOn(); };
+    document.addEventListener('visibilitychange', onVisible);
+
     return () => {
+      document.removeEventListener('visibilitychange', onVisible);
       socketClient.disconnect();
-      stopMicLoop();
-      if (audioCtxRef.current) {
-        audioCtxRef.current.close();
-      }
+      stopMic();
+      releaseScreen();
     };
   }, [requestedSlot]);
+
+  // Stop phones from going to sleep mid-song (a sleeping phone can't hear you)
+  const keepScreenOn = async () => {
+    try {
+      if ('wakeLock' in navigator && !wakeLockRef.current) {
+        wakeLockRef.current = await (navigator as any).wakeLock.request('screen');
+        wakeLockRef.current.addEventListener?.('release', () => { wakeLockRef.current = null; });
+      }
+    } catch { /* not supported or not allowed: fine */ }
+  };
+  const releaseScreen = () => {
+    try { wakeLockRef.current?.release(); } catch { /* ignore */ }
+    wakeLockRef.current = null;
+  };
 
   // Enable microphone
   const enableMic = async () => {
@@ -100,22 +118,10 @@ const ClientPage: React.FC = () => {
         }
       });
 
-      const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
-      audioCtxRef.current = new AudioContextClass();
-
-      if (audioCtxRef.current.state === 'suspended') {
-        await audioCtxRef.current.resume();
-      }
-
-      analyserRef.current = audioCtxRef.current.createAnalyser();
-      analyserRef.current.fftSize = 2048;
-
-      sourceRef.current = audioCtxRef.current.createMediaStreamSource(stream);
-      sourceRef.current.connect(analyserRef.current);
+      captureRef.current = await startMicCapture(stream, handleFrame);
 
       setMicEnabled(true);
-      console.log('[Client] ✅ Microphone enabled, starting pitch detection loop');
-      startMicLoop();
+      console.log(`[Client] ✅ Microphone enabled (${captureRef.current.sampleRate} Hz), pitch detection running`);
     } catch (err: any) {
       console.error('Mic error:', err);
       if (err.name === 'NotAllowedError') {
@@ -128,52 +134,28 @@ const ClientPage: React.FC = () => {
     }
   };
 
-  // Mic processing loop
-  const startMicLoop = () => {
-    console.log('[Client] Starting mic processing loop');
-    const loop = () => {
-      if (!analyserRef.current || !audioCtxRef.current) {
-        animationFrameRef.current = requestAnimationFrame(loop);
-        return;
-      }
+  // Called for every audio frame (~21 ms apart), even when this page is in the background
+  const handleFrame = (frame: Float32Array, sampleRate: number) => {
+    const { pitch, rms } = detectPitch(frame, sampleRate);
+    frameCountRef.current++;
 
-      const buffer = new Float32Array(analyserRef.current.fftSize);
-      analyserRef.current.getFloatTimeDomainData(buffer);
+    // Send ~23 times a second while the game runs — including "silent" (-1), so the host
+    // knows you stopped singing instead of holding on to your last note.
+    const slot = assignedSlotRef.current;
+    if (gameStartedRef.current && slot && frameCountRef.current % 2 === 0) {
+      socketClient.sendPitchData(slot, pitch > 0 ? pitch : -1, Date.now(), rms);
+    }
 
-      // Calculate volume (RMS)
-      let rms = 0;
-      for (let i = 0; i < buffer.length; i++) {
-        rms += buffer[i] * buffer[i];
-      }
-      rms = Math.sqrt(rms / buffer.length);
-      setVolume(rms);
-
-      // Detect pitch
-      const pitch = autoCorrelate(buffer, audioCtxRef.current.sampleRate);
+    // Screen readout ~15 times a second is plenty
+    if (frameCountRef.current % 3 === 0) {
       setCurrentPitch(pitch);
-
-      // Send pitch data to server if game is active (use refs to avoid stale closure)
-      // Throttle to every 3rd frame (~20fps) for better performance
-      frameCountRef.current++;
-      const isGameActive = gameStartedRef.current;
-      const slot = assignedSlotRef.current;
-      const shouldSend = frameCountRef.current % 3 === 0;
-      
-      if (isGameActive && slot && pitch > 0 && shouldSend) {
-        socketClient.sendPitchData(slot, pitch, Date.now(), rms);
-      }
-
-      animationFrameRef.current = requestAnimationFrame(loop);
-    };
-
-    loop();
+      setVolume(rms);
+    }
   };
 
-  const stopMicLoop = () => {
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-      animationFrameRef.current = null;
-    }
+  const stopMic = () => {
+    captureRef.current?.stop();
+    captureRef.current = null;
   };
 
   // Set ready

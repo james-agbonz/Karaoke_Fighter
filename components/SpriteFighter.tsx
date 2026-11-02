@@ -119,6 +119,9 @@ function pickMove(combo: number): Move {
   return 'attack1';
 }
 
+// Keep chaining attacks while the game reported a hit this recently
+const ATTACK_HOLD_MS = 300;
+
 // ============ COMPONENT ============
 const SpriteFighter: React.FC<FighterProps> = ({
   side, isAttacking, isDamaged, isGuarding = false, comboCount = 0, hp, maxHp, name, score,
@@ -138,6 +141,11 @@ const SpriteFighter: React.FC<FighterProps> = ({
   const deadRef = useRef<boolean>(false);
   const prevAttack = useRef(false);
   const prevDamage = useRef(false);
+  // Last time the game said "this fighter is landing hits". While hits keep coming,
+  // attacks chain one after another; each animation plays to the end instead of
+  // restarting on every hit (which made fighters look frozen).
+  const attackSignalAtRef = useRef(0);
+  if (isAttacking) attackSignalAtRef.current = performance.now();
 
   useEffect(() => { comboRef.current = comboCount; }, [comboCount]);
   useEffect(() => { guardRef.current = isGuarding; }, [isGuarding]);
@@ -155,10 +163,10 @@ const SpriteFighter: React.FC<FighterProps> = ({
 
   useEffect(() => {
     if (deadRef.current) return;
-    if (isDamaged && !prevDamage.current) {
-      trigger('hit');
-    } else if (isAttacking && !prevAttack.current && moveRef.current !== 'hit') {
-      trigger(pickMove(comboRef.current));
+    if (isDamaged && !prevDamage.current && moveRef.current !== 'hit') {
+      trigger('hit');                         // a hit reaction already playing finishes first
+    } else if (isAttacking && moveRef.current === 'idle') {
+      trigger(pickMove(comboRef.current));    // an attack already playing finishes first
     }
     prevAttack.current = isAttacking;
     prevDamage.current = isDamaged;
@@ -172,6 +180,10 @@ const SpriteFighter: React.FC<FighterProps> = ({
       let progress = dur === Infinity ? 0 : Math.min(elapsed / dur, 1);
       if (dur !== Infinity && elapsed >= dur && move !== 'death') {
         moveRef.current = 'idle'; startRef.current = now; progress = 0;
+      }
+      // Still landing hits? Go straight into the next attack.
+      if (moveRef.current === 'idle' && !deadRef.current && now - attackSignalAtRef.current < ATTACK_HOLD_MS) {
+        moveRef.current = pickMove(comboRef.current); startRef.current = now; progress = 0;
       }
       // Guard overrides idle only — attacks, hits, and death play out fully
       if (moveRef.current === 'idle' && guardRef.current) {

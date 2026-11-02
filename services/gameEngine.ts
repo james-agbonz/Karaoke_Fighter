@@ -1,6 +1,5 @@
 import { GamePhase } from '../types';
 import type { PlayerSlot, PlayerState, GameState, MidiNote } from '../types';
-import { getNoteAtTime } from './midiParser';
 
 // ============ CONSTANTS ============
 export const DEFAULT_HP = 20000;
@@ -17,7 +16,15 @@ export function comboTierMultiplier(comboCount: number): number {
 }
 export const PERFECT_THRESHOLD_CENTS = 10;
 export const GOOD_THRESHOLD_CENTS = 25;
-export const OK_THRESHOLD_CENTS = 50;
+// How far off-key still counts as a hit. 100 cents = within one semitone ("medium" in
+// karaoke games); 50 was "hard" and real singers missed most notes. Lower it for a harder game.
+export const OK_THRESHOLD_CENTS = 100;
+
+// Timing allowance around each note. Your voice reaches the host ~0.1–0.25 s after you sing
+// (mic window + network), and most melody notes only last 0.1–0.2 s, so without this a
+// perfect singer would miss most of them.
+export const NOTE_EARLY_S = 0.10;
+export const NOTE_LATE_S = 0.25;
 
 // ============ PITCH ACCURACY ============
 
@@ -48,13 +55,31 @@ export function calculatePitchAccuracy(expectedPitch: number, actualPitch: numbe
     return 1.0 - (centsDiff - PERFECT_THRESHOLD_CENTS) / (GOOD_THRESHOLD_CENTS - PERFECT_THRESHOLD_CENTS) * 0.3;
   }
   
-  // OK: 25-50 cents = 0.3-0.7
+  // OK: 25-100 cents = 0.3-0.7
   if (centsDiff <= OK_THRESHOLD_CENTS) {
     return 0.7 - (centsDiff - GOOD_THRESHOLD_CENTS) / (OK_THRESHOLD_CENTS - GOOD_THRESHOLD_CENTS) * 0.4;
   }
   
-  // Miss: >50 cents = 0
+  // Miss
   return 0;
+}
+
+// Notes that can be scored right now: playing, just about to start, or just finished
+// (see NOTE_EARLY_S / NOTE_LATE_S). Sorted by start time.
+export function getScorableNotes(notes: MidiNote[], time: number): MidiNote[] {
+  const out: MidiNote[] = [];
+  for (const n of notes) {
+    if (n.time - NOTE_EARLY_S > time) break;          // notes are sorted: nothing later can match
+    if (time <= n.time + n.duration + NOTE_LATE_S) out.push(n);
+  }
+  return out;
+}
+
+// Best accuracy for a sung pitch against any note in the timing window
+function bestAccuracy(notes: MidiNote[], sungPitch: number): number {
+  let best = 0;
+  for (const n of notes) best = Math.max(best, calculatePitchAccuracy(n.pitch, sungPitch));
+  return best;
 }
 
 // ============ DAMAGE CALCULATION ============
@@ -150,8 +175,9 @@ export function processGameTick(
   newState.currentSegment = segment;
   newState.attackingPlayer = attacker;
   
-  // Get current note
-  const currentNote = getNoteAtTime(midiNotes, currentTime);
+  // Notes you can score against right now (with the timing allowance)
+  const scorable = getScorableNotes(midiNotes, currentTime);
+  const currentNote = scorable.length > 0 ? scorable[0] : null;
   
   let p1Damage = 0;
   let p2Damage = 0;
@@ -163,9 +189,9 @@ export function processGameTick(
   newState.player2 = { ...newState.player2, currentPitch: p2Pitch };
   
   if (currentNote) {
-    // Calculate accuracy for both players
-    p1Accuracy = calculatePitchAccuracy(currentNote.pitch, p1Pitch);
-    p2Accuracy = calculatePitchAccuracy(currentNote.pitch, p2Pitch);
+    // Calculate accuracy for both players (best match within the timing window)
+    p1Accuracy = bestAccuracy(scorable, p1Pitch);
+    p2Accuracy = bestAccuracy(scorable, p2Pitch);
     
     // Only attacking player accumulates damage
     if (attacker === 1) {
