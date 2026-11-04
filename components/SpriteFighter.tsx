@@ -40,6 +40,7 @@ const CHARACTERS: Record<'left' | 'right', CharDef> = {
       idle:    { file: 'Idle.png',    frames: 8, fps: 10 },
       attack1: { file: 'Attack1.png', frames: 6, fps: 14 },
       attack2: { file: 'Attack2.png', frames: 6, fps: 14 },
+      run:     { file: 'Run.png',     frames: 8, fps: 14 },
       jump:    { file: 'Jump.png',    frames: 2, fps: 8 },
       fall:    { file: 'Fall.png',    frames: 2, fps: 8 },
       takeHit: { file: 'TakeHit.png', frames: 4, fps: 12 },
@@ -54,6 +55,7 @@ const CHARACTERS: Record<'left' | 'right', CharDef> = {
       idle:    { file: 'Idle.png',    frames: 4, fps: 8 },
       attack1: { file: 'Attack1.png', frames: 4, fps: 12 },
       attack2: { file: 'Attack2.png', frames: 4, fps: 12 },
+      run:     { file: 'Run.png',     frames: 8, fps: 14 },
       jump:    { file: 'Jump.png',    frames: 2, fps: 8 },
       fall:    { file: 'Fall.png',    frames: 2, fps: 8 },
       takeHit: { file: 'TakeHit.png', frames: 3, fps: 12 },
@@ -63,20 +65,26 @@ const CHARACTERS: Record<'left' | 'right', CharDef> = {
 };
 
 // ============ MOVES & TIERS ============
-type Move = 'idle' | 'attack1' | 'attack2' | 'leap' | 'hit' | 'death';
+// leap = jumping somersault strike toward the opponent; flip = backflip away from them
+type Move = 'idle' | 'attack1' | 'attack2' | 'leap' | 'flip' | 'hit' | 'death';
 interface Segment { anim: string; until: number }
 
 const MOVE_SCRIPT: Record<Move, Segment[]> = {
   idle:    [{ anim: 'idle', until: 1 }],
   attack1: [{ anim: 'attack1', until: 1 }],
   attack2: [{ anim: 'attack2', until: 1 }],
-  leap:    [{ anim: 'jump', until: 0.22 }, { anim: 'attack2', until: 0.75 }, { anim: 'fall', until: 1 }],
+  leap:    [{ anim: 'jump', until: 0.45 }, { anim: 'attack2', until: 0.85 }, { anim: 'fall', until: 1 }],
+  flip:    [{ anim: 'jump', until: 0.6 }, { anim: 'fall', until: 1 }],
   hit:     [{ anim: 'takeHit', until: 1 }],
   death:   [{ anim: 'death', until: 1 }],
 };
 
+// Airborne moves have a fixed length (the jump sheets are only 2 frames long)
+const MOVE_MS: Partial<Record<Move, number>> = { leap: 1000, flip: 700 };
+
 function moveDuration(move: Move, char: CharDef): number {
   if (move === 'idle') return Infinity;
+  if (MOVE_MS[move]) return MOVE_MS[move]!;
   return MOVE_SCRIPT[move].reduce((total, seg) => {
     const anim = char.anims[seg.anim];
     return total + (anim.frames / anim.fps) * 1000;
@@ -114,13 +122,29 @@ function pickMove(combo: number): Move {
   const r = Math.random();
   if (tier === 1) return 'attack1';
   if (tier === 2) return r < 0.55 ? 'attack1' : 'attack2';
-  if (r < 0.4) return 'leap';
-  if (r < 0.8) return 'attack2';
+  if (r < 0.2) return 'leap';   // somersault strike — the long move, so keep it a treat
+  if (r < 0.7) return 'attack2';
   return 'attack1';
 }
 
 // Keep chaining attacks while the game reported a hit this recently
 const ATTACK_HOLD_MS = 300;
+
+// ============ STAGE MOVEMENT ============
+// x = how far a fighter has stepped from its starting spot toward the opponent (px).
+const CONTACT_DIST = 170;   // centre-to-centre distance when trading blows (sword reach)
+const IN_RANGE_PX = 60;     // close enough to the contact spot to start swinging
+const RUN_SPEED = 560;      // px/s when closing in
+const BACKSTEP_SPEED = 240; // px/s when backing off
+const ENGAGE_MS = 1200;     // stay up close this long after the last landed hit
+const KNOCKBACK_PX = 34;    // shove from taking a hit
+const LEAP_HEIGHT = 120;
+const FLIP_HEIGHT = 90;
+const LEAP_IN_CHANCE = 0.5;   // close the gap with a somersault leap instead of running
+const FLIP_OUT_CHANCE = 0.35; // back off with a backflip instead of stepping back
+
+const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
+const smooth = (p: number) => p * p * (3 - 2 * p);
 
 // ============ COMPONENT ============
 const SpriteFighter: React.FC<FighterProps> = ({
@@ -130,8 +154,12 @@ const SpriteFighter: React.FC<FighterProps> = ({
   const char = CHARACTERS[side];
   const hpPercent = maxHp > 0 ? (hp / maxHp) * 100 : 0;
 
-  const [display, setDisplay] = useState<{ anim: AnimDef; frame: number }>(
-    () => ({ anim: char.anims.idle, frame: 0 })
+  // dir: +1 = forward is to the right (P1), -1 = forward is to the left (P2)
+  const dir = isLeft ? 1 : -1;
+
+  // x/y/rot are screen offsets for the sprite: x along the floor, y height, rot somersault spin
+  const [display, setDisplay] = useState<{ anim: AnimDef; frame: number; x: number; y: number; rot: number }>(
+    () => ({ anim: char.anims.idle, frame: 0, x: 0, y: 0, rot: 0 })
   );
   const moveRef = useRef<Move>('idle');
   const startRef = useRef<number>(0);
@@ -139,8 +167,17 @@ const SpriteFighter: React.FC<FighterProps> = ({
   const comboRef = useRef<number>(comboCount);
   const guardRef = useRef<boolean>(isGuarding);
   const deadRef = useRef<boolean>(false);
-  const prevAttack = useRef(false);
   const prevDamage = useRef(false);
+
+  // Stage movement (see STAGE MOVEMENT)
+  const rootRef = useRef<HTMLDivElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const xRef = useRef(0);          // distance stepped toward the opponent
+  const fromXRef = useRef(0);      // leap/flip start and end
+  const toXRef = useRef(0);
+  const kickRef = useRef(0);       // knockback, decays back to 0
+  const reachRef = useRef(0);      // how far to step in to be in sword range
+  const planRef = useRef<'run' | 'leap' | 'walk' | 'flip' | null>(null);  // how to close in / back off
   // Last time the game said "this fighter is landing hits". While hits keep coming,
   // attacks chain one after another; each animation plays to the end instead of
   // restarting on every hit (which made fighters look frozen).
@@ -154,49 +191,129 @@ const SpriteFighter: React.FC<FighterProps> = ({
     Object.values(char.anims).forEach((a: AnimDef) => { const img = new Image(); img.src = `${char.base}/${a.file}`; });
   }, [char]);
 
-  const trigger = (m: Move) => { moveRef.current = m; startRef.current = performance.now(); };
+  // Start a move. Leaps and flips travel from the current spot to toX.
+  const begin = (m: Move, now: number, toX = xRef.current) => {
+    moveRef.current = m; startRef.current = now;
+    fromXRef.current = xRef.current; toXRef.current = toX;
+  };
+  const isAirborne = (m: Move) => m === 'leap' || m === 'flip';
 
   useEffect(() => {
-    if (hp <= 0 && !deadRef.current) { deadRef.current = true; trigger('death'); }
-    if (hp > 0 && deadRef.current) { deadRef.current = false; trigger('idle'); }
+    if (hp <= 0 && !deadRef.current) { deadRef.current = true; begin('death', performance.now()); }
+    if (hp > 0 && deadRef.current) { deadRef.current = false; xRef.current = 0; begin('idle', performance.now()); }
   }, [hp]);
 
+  // Attacks are started by the loop below (only once in sword range); hit reactions start here.
   useEffect(() => {
     if (deadRef.current) return;
     if (isDamaged && !prevDamage.current && moveRef.current !== 'hit') {
-      trigger('hit');                         // a hit reaction already playing finishes first
-    } else if (isAttacking && moveRef.current === 'idle') {
-      trigger(pickMove(comboRef.current));    // an attack already playing finishes first
+      kickRef.current = KNOCKBACK_PX;
+      if (!isAirborne(moveRef.current)) begin('hit', performance.now());  // a hit reaction already playing finishes first
     }
-    prevAttack.current = isAttacking;
     prevDamage.current = isDamaged;
-  }, [isAttacking, isDamaged]);
+  }, [isDamaged]);
 
   useEffect(() => {
+    // Sword range depends on how far apart the two fighters stand, which depends on screen width.
+    // Both fighters stand mirrored around the stage centre, so the gap is twice our distance to it.
+    const measure = () => {
+      const vp = viewportRef.current, stage = rootRef.current?.parentElement;
+      if (!vp || !stage) return;
+      const a = vp.getBoundingClientRect(), s = stage.getBoundingClientRect();
+      const gap = 2 * Math.abs((s.left + s.width / 2) - (a.left + a.width / 2));
+      reachRef.current = Math.max(0, gap - CONTACT_DIST);
+    };
+    measure();
+    window.addEventListener('resize', measure);
+
+    let last = performance.now();
     const loop = (now: number) => {
+      const dt = Math.min((now - last) / 1000, 0.05);
+      last = now;
+      const dead = deadRef.current;
+      const reach = reachRef.current;
+
+      const dur = moveDuration(moveRef.current, char);
+      let progress = dur === Infinity ? 0 : Math.min((now - startRef.current) / dur, 1);
+      if (dur !== Infinity && progress >= 1 && moveRef.current !== 'death') {
+        if (isAirborne(moveRef.current)) xRef.current = toXRef.current;
+        begin('idle', now); progress = 0;
+      }
+
+      // Where to stand: up close while landing hits, back at the start otherwise
+      const sinceHit = now - attackSignalAtRef.current;
+      const landing = !dead && !guardRef.current && sinceHit < ATTACK_HOLD_MS;
+      const engaged = !dead && !guardRef.current && sinceHit < ENGAGE_MS;
+      const target = engaged ? reach : 0;
+      const x = xRef.current;
+      const inRange = Math.abs(reach - x) < IN_RANGE_PX;
+
+      if (moveRef.current === 'idle' && !dead) {
+        if (guardRef.current && x > IN_RANGE_PX) {
+          // Our turn to defend while we're up in their face: backflip out
+          planRef.current = null;
+          begin('flip', now, 0);
+        } else if (landing && inRange) {
+          // Still landing hits up close: chain the next attack
+          planRef.current = null;
+          const m = pickMove(comboRef.current);
+          begin(m, now, m === 'leap' ? reach : x);
+        } else if (landing) {
+          // Landing hits from across the stage: run in, or somersault in
+          if (planRef.current !== 'run' && planRef.current !== 'leap') {
+            planRef.current = Math.random() < LEAP_IN_CHANCE ? 'leap' : 'run';
+          }
+          if (planRef.current === 'leap') { planRef.current = null; begin('leap', now, reach); }
+        } else if (!engaged && x > 150) {
+          // Stopped landing hits: back off, sometimes with a backflip
+          if (planRef.current !== 'walk' && planRef.current !== 'flip') {
+            planRef.current = Math.random() < FLIP_OUT_CHANCE ? 'flip' : 'walk';
+          }
+          if (planRef.current === 'flip') { planRef.current = null; begin('flip', now, 0); }
+        }
+      }
+
+      // Move along the floor
       const move = moveRef.current;
-      const dur = moveDuration(move, char);
-      const elapsed = now - startRef.current;
-      let progress = dur === Infinity ? 0 : Math.min(elapsed / dur, 1);
-      if (dur !== Infinity && elapsed >= dur && move !== 'death') {
-        moveRef.current = 'idle'; startRef.current = now; progress = 0;
+      let vx = 0, y = 0, rot = 0;
+      if (isAirborne(move)) {
+        const travel = smooth(progress);
+        xRef.current = fromXRef.current + (toXRef.current - fromXRef.current) * travel;
+        if (move === 'leap') {
+          y = Math.sin(Math.PI * progress) * LEAP_HEIGHT;
+          rot = dir * 360 * smooth(clamp01((progress - 0.05) / 0.4));      // forward somersault
+        } else {
+          y = Math.sin(Math.PI * progress) * FLIP_HEIGHT;
+          rot = -dir * 360 * smooth(clamp01((progress - 0.05) / 0.75));    // backflip
+        }
+      } else if (!dead) {
+        const gap = target - x;
+        const speed = (gap > 0 ? RUN_SPEED : BACKSTEP_SPEED) * (move === 'idle' ? 1 : 0.3);  // drift only while swinging
+        const step = Math.sign(gap) * Math.min(Math.abs(gap), speed * dt);
+        xRef.current += step;
+        vx = dt > 0 ? step / dt : 0;
       }
-      // Still landing hits? Go straight into the next attack.
-      if (moveRef.current === 'idle' && !deadRef.current && now - attackSignalAtRef.current < ATTACK_HOLD_MS) {
-        moveRef.current = pickMove(comboRef.current); startRef.current = now; progress = 0;
-      }
-      // Guard overrides idle only — attacks, hits, and death play out fully
-      if (moveRef.current === 'idle' && guardRef.current) {
-        const g = char.anims[char.guard.anim];
-        setDisplay({ anim: g, frame: char.guard.frame });
+      kickRef.current *= Math.exp(-dt * 6);
+
+      // Pick the frame: run while charging in, guard pose while defending, otherwise the move
+      let frame: { anim: AnimDef; frame: number };
+      if (move === 'idle' && vx > 40) {
+        const run = char.anims.run;
+        frame = { anim: run, frame: Math.floor((now / 1000) * run.fps) % run.frames };
+      } else if (move === 'idle' && guardRef.current) {
+        frame = { anim: char.anims[char.guard.anim], frame: char.guard.frame };
       } else {
-        setDisplay(getFrame(moveRef.current, progress, char, now));
+        frame = getFrame(move, progress, char, now);
       }
+
+      // Fighting-stance bounce when standing still
+      const bob = move === 'idle' && Math.abs(vx) < 1 && !dead ? Math.sin((now / 1000) * Math.PI * 1.8) * 6 : 0;
+      setDisplay({ ...frame, x: dir * (xRef.current - kickRef.current + bob), y, rot });
       rafRef.current = requestAnimationFrame(loop);
     };
     rafRef.current = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [char]);
+    return () => { cancelAnimationFrame(rafRef.current); window.removeEventListener('resize', measure); };
+  }, [char, dir]);
 
   const inHit = moveRef.current === 'hit';
   const guardingNow = isGuarding && moveRef.current === 'idle' && !deadRef.current;
@@ -204,7 +321,8 @@ const SpriteFighter: React.FC<FighterProps> = ({
   const scaled = FRAME * char.scale;
 
   return (
-    <div className="flex flex-col items-center relative">
+    // The fighter doing the attacking is drawn in front when the two meet
+    <div ref={rootRef} className="flex flex-col items-center relative" style={{ zIndex: isGuarding ? 1 : 2 }}>
       <div className={`mb-2 w-48 ${isLeft ? 'text-left' : 'text-right'}`}>
         <p className="text-3xl md:text-4xl font-black text-white">{score.toString().padStart(5, '0')}</p>
       </div>
@@ -228,14 +346,17 @@ const SpriteFighter: React.FC<FighterProps> = ({
       </div>
 
       {/* Open-stage sprite viewport — no box, fighter stands on the arena floor */}
-      <div className="relative" style={{ width: VIEW_W, height: VIEW_H, overflow: 'visible' }}>
-        {/* floor shadow */}
+      <div ref={viewportRef} className="relative" style={{ width: VIEW_W, height: VIEW_H, overflow: 'visible' }}>
+        {/* floor shadow: follows the fighter along the floor, shrinks while they're in the air */}
         <div style={{
-          position: 'absolute', bottom: 6, left: '50%', transform: 'translateX(-50%)',
+          position: 'absolute', bottom: 6, left: '50%',
+          transform: `translateX(calc(-50% + ${display.x}px)) scale(${1 - Math.min(display.y / 250, 0.5)})`,
           width: 135, height: 22, borderRadius: '50%',
           background: 'radial-gradient(ellipse, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 70%)',
         }} />
-        {/* sprite frame */}
+        {/* the fighter: steps, jumps and spins inside an untransformed viewport (used to measure the stage) */}
+        <div style={{ position: 'absolute', inset: 0, transform: `translate(${display.x}px, ${-display.y}px)` }}>
+        <div style={{ position: 'absolute', inset: 0, transform: `rotate(${display.rot}deg)`, transformOrigin: '50% 62%' }}>
         <div
           style={{
             position: 'absolute',
@@ -252,6 +373,7 @@ const SpriteFighter: React.FC<FighterProps> = ({
             transition: 'filter 80ms',
           }}
         />
+        </div>
         {guardingNow && (
           <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[10px] font-bold tracking-[0.25em] text-blue-300/90 bg-black/50 px-2 py-0.5 rounded">GUARD</span>
         )}
@@ -260,6 +382,7 @@ const SpriteFighter: React.FC<FighterProps> = ({
             <span className="text-4xl font-black text-red-500 animate-ping">HIT!</span>
           </div>
         )}
+        </div>
       </div>
     </div>
   );
